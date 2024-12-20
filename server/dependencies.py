@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from typing import Annotated
-from fastapi import Header, HTTPException, Depends
+from fastapi import Header, HTTPException 
 from sqlmodel import create_engine, SQLModel, Session
 from config import Config
 
