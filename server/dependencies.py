@@ -1,3 +1,4 @@
+import bcrypt
 from pydantic import BaseModel
 from typing import Annotated
 from fastapi import Header, HTTPException 
@@ -33,3 +34,13 @@ def create_db_and_table():
 def get_session():
     with Session(engine) as session:
         yield session
+
+
+def hash_password(password: str) -> str:
+    salt = bcrypt.gensalt()
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt)
+    return hashed_password.decode('utf-8')
+
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password.encode('utf-8'))
