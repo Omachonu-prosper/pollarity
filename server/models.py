@@ -58,10 +58,10 @@ class PollPublic(PollBase):
 class OptionBase(SQLModel):
     choice: str = Field()
     chosen: int = Field(default=0)
+    id: int | None = Field(default=None, primary_key=True)
 
 
 class Option(OptionBase, table=True):
-    id: int | None = Field(default=None, primary_key=True)
     poll_id: int | None = Field(foreign_key='poll.id')
     poll: Poll = Relationship(back_populates='options_')
 
