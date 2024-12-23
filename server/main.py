@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from dependencies import validate_api_key, create_db_and_table
 from routers import root
 from routers import users
+from routers import polls
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
@@ -22,4 +23,5 @@ app.add_middleware(
     allow_headers=['*']
 )
 app.include_router(root.router)
-app.include_router(users.router)  
+app.include_router(users.router)
+app.include_router(polls.router)
