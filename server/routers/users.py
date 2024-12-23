@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, status, HTTPException
 from sqlmodel import Session, select
 from models import UserPublic, UserCreate, User, UserAuthenticate
-from dependencies import get_session, SuccessResponse, hash_password, verify_password
+from dependencies import get_session, SuccessResponse, hash_password, verify_password, create_access_token
 
 router = APIRouter(
     tags=['users']
@@ -21,7 +21,10 @@ async def signup(
     user_public = UserPublic.model_validate(db_user)
     return SuccessResponse(
         message='User created successfully',
-        data=user_public.model_dump()
+        data={
+            'user_details': user_public.model_dump(),
+            'access_token': await create_access_token(db_user.id)
+        }
     )
 
 
@@ -47,5 +50,8 @@ async def login(
     user_public = UserPublic.model_validate(db_user)
     return SuccessResponse(
         message='Logged in successfully',
-        data=user_public.model_dump()
+        data={
+            'user_details': user_public.model_dump(),
+            'access_token': await create_access_token(db_user.id)
+        }
     )

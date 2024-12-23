@@ -1,8 +1,12 @@
+from math import exp
 import bcrypt
+import jwt
+from datetime import datetime, timedelta, timezone
 from pydantic import BaseModel
 from typing import Annotated
-from fastapi import Header, HTTPException 
-from sqlmodel import create_engine, SQLModel, Session
+from fastapi import Header, HTTPException, status, Depends
+from sqlmodel import create_engine, SQLModel, Session, select
+from models import User
 from config import Config
 
 sqlite_filename = 'database.db'
@@ -44,3 +48,52 @@ def hash_password(password: str) -> str:
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password.encode('utf-8'))
+
+
+async def create_access_token(user_id: int | None):
+    to_encode = {
+        'user_id': user_id,
+        'token_type': 'ACCESS_TOKEN',
+        'exp': datetime.now(timezone.utc) + timedelta(minutes=Config.ACCESS_TOKEN_EXPIRE_MINS)
+    }
+    token = jwt.encode(to_encode, Config.SECRET_KEY, algorithm=Config.JWT_ALGORITHM)
+    return token
+
+
+async def verify_access_token(
+        authorization: Annotated[str, Header()],
+        session : Session = Depends(get_session)
+    ) -> User:
+    if not authorization.startswith('Bearer'):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail='missing Bearer in authorization header'
+        )
+    header_str_split = authorization.split(' ')
+    if len(header_str_split) != 2:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail='invalid authorization header format'
+        )
+    try:
+        token = header_str_split[1]
+        payload = jwt.decode(token, Config.SECRET_KEY, algorithms=[Config.JWT_ALGORITHM])
+        uid = payload['user_id']
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail='authorization token expired'
+        )
+    except:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail='access token could not be verified'
+        )
+    query = select(User).where(User.id == uid)
+    user = session.exec(query).first()
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='User not found'
+        )
+    return user

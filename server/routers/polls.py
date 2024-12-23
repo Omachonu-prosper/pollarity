@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, status, HTTPException
 from sqlmodel import Session, select
-from dependencies import SuccessResponse, get_session
-from models import PollCreate, Poll, PollPublic, Option, OptionPublic
+from dependencies import SuccessResponse, get_session, verify_access_token
+from models import PollCreate, Poll, PollPublic, Option, OptionPublic, User
 
 router = APIRouter(
     tags=['polls']
@@ -11,9 +11,10 @@ router = APIRouter(
 @router.post('/poll/new', status_code=status.HTTP_201_CREATED)
 def create_poll(
         poll: PollCreate,
-        session: Session = Depends(get_session)
+        session: Session = Depends(get_session),
+        user: User = Depends(verify_access_token)
     ) -> SuccessResponse:
-    db_poll = Poll.model_validate(poll)
+    db_poll = Poll(title=poll.title, user_id=user.id)
     session.add(db_poll)
     session.commit()
     session.refresh(db_poll)

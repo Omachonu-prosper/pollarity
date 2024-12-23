@@ -1,22 +1,22 @@
+from enum import unique
 from operator import index
 import uuid 
 from datetime import datetime
 from sqlmodel import Field, SQLModel, Relationship
 
 class UserBase(SQLModel):
-    email: str = Field(index=True)
+    email: str = Field(index=True, unique=True)
 
 
 class User(UserBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
     password: str = Field()
-    username: str = Field(index=True)
+    username: str = Field(index=True, unique=True)
     polls: list['Poll'] = Relationship(back_populates='user')
 
 
 class UserPublic(UserBase):
     username: str = Field(index=True)
-    id: int
 
 
 class UserCreate(UserBase):
@@ -38,7 +38,7 @@ class Poll(PollBase, table=True):
     is_open: bool = Field(default=True)
     is_anonymous: bool = Field(default=True)
     ref: str = Field(default=str(uuid.uuid4().hex), index=True)
-    user_id: int = Field(foreign_key='user.id', default=1)
+    user_id: int | None = Field(foreign_key='user.id')
     user: User = Relationship(back_populates='polls')
     options_: list['Option'] = Relationship(back_populates='poll')
 
