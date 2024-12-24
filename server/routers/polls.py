@@ -1,7 +1,9 @@
 from fastapi import APIRouter, Depends, status, HTTPException
+from fastapi.responses import StreamingResponse
 from sqlmodel import Session, select
+from starlette.status import HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND
 from dependencies import SuccessResponse, get_session, verify_access_token
-from models import PollCreate, Poll, PollPublic, Option, OptionPublic, User
+from models import PollCreate, Poll, PollPublic, Option, OptionPublic, User, Vote
 
 router = APIRouter(
     tags=['polls']
@@ -9,7 +11,7 @@ router = APIRouter(
 
 
 @router.post('/poll/new', status_code=status.HTTP_201_CREATED)
-def create_poll(
+async def create_poll(
         poll: PollCreate,
         session: Session = Depends(get_session),
         user: User = Depends(verify_access_token)
@@ -30,8 +32,8 @@ def create_poll(
     )
 
 
-@router.get('/poll/{ref}')
-def get_poll(
+@router.get('/poll/{ref}', status_code=status.HTTP_200_OK)
+async def get_poll(
         ref: str,
         session: Session = Depends(get_session)
     ) -> SuccessResponse:
@@ -57,4 +59,61 @@ def get_poll(
             'poll': poll_
         }
     )
+
+
+# @router.get('/poll/{ref}', status_code=status.HTTP_200_OK)
+# async def get_live_poll(
+#         ref: str,
+#         session: Session = Depends(get_session)
+#     ) -> StreamingResponse:
+#     return 
+
+
+@router.post('/poll/{ref}/vote', status_code=status.HTTP_200_OK)
+async def poll_vote(
+        ref: str,
+        vote: Vote,
+        session: Session = Depends(get_session)
+    ) -> SuccessResponse:
+    query = select(Poll).where(Poll.ref == ref)
+    poll = session.exec(query).first()
+    if not poll:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='poll not found'
+        )
+    if not poll.is_open:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail='poll has been closed'
+        )
+    query = select(Option).where(Option.id == vote.option_id).where(Option.poll_id == poll.id)
+    option = session.exec(query).first()
+    if not option:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='poll and option mismatch'
+        )
+    option.chosen += 1
+    session.add(option)
+    session.commit()
+    return SuccessResponse(message='vote recorded')
+
+
+@router.post('/poll/{ref}/close', status_code=status.HTTP_200_OK)
+async def close_poll(
+        ref: str,
+        session: Session = Depends(get_session)
+    ) -> SuccessResponse:
+    query = select(Poll).where(Poll.ref == ref)
+    poll = session.exec(query).first()
+    if not poll:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='poll not found'
+        )
+    poll.is_open = False
+    session.add(poll)
+    session.commit()
+    return SuccessResponse(message='closed poll successfully')
 

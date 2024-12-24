@@ -1,7 +1,6 @@
-from enum import unique
-from operator import index
 import uuid 
 from datetime import datetime
+from pydantic import BaseModel
 from sqlmodel import Field, SQLModel, Relationship
 
 class UserBase(SQLModel):
@@ -68,3 +67,7 @@ class Option(OptionBase, table=True):
 
 class OptionPublic(OptionBase):
     pass
+
+
+class Vote(BaseModel):
+    option_id: int | None
