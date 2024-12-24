@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, status, HTTPException
 from sqlmodel import Session, select
 from models import UserPublic, UserCreate, User, UserAuthenticate
-from dependencies import get_session, SuccessResponse, hash_password, verify_password, create_access_token
+from dependencies import get_session, SuccessResponse, hash_password, verify_password, create_access_token, verify_access_token
 
 router = APIRouter(
     tags=['users']
@@ -55,3 +55,14 @@ async def login(
             'access_token': await create_access_token(db_user.id)
         }
     )
+
+
+@router.get('/user/polls', status_code=status.HTTP_200_OK)
+async def user_polls(
+        user: User = Depends(verify_access_token),
+    ) -> SuccessResponse:
+    return SuccessResponse(
+        message='User polls fetched successfully',
+        data=user.polls
+    )
+
