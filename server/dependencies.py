@@ -1,6 +1,6 @@
-from math import exp
 import bcrypt
 import jwt
+import asyncio
 from datetime import datetime, timedelta, timezone
 from pydantic import BaseModel
 from typing import Annotated
@@ -13,6 +13,8 @@ sqlite_filename = 'database.db'
 sqlite_url = f'sqlite:///{sqlite_filename}'
 connect_args = {'check_same_thread': False}
 engine = create_engine(sqlite_url, connect_args=connect_args)
+
+vote_updates = asyncio.Queue()
 
 
 class SuccessResponse(BaseModel):

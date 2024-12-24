@@ -1,8 +1,7 @@
 from fastapi import APIRouter, Depends, status, HTTPException
 from fastapi.responses import StreamingResponse
 from sqlmodel import Session, select
-from starlette.status import HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND
-from dependencies import SuccessResponse, get_session, verify_access_token
+from dependencies import SuccessResponse, get_session, verify_access_token, vote_updates
 from models import PollCreate, Poll, PollPublic, Option, OptionPublic, User, Vote
 
 router = APIRouter(
@@ -61,12 +60,28 @@ async def get_poll(
     )
 
 
-# @router.get('/poll/{ref}', status_code=status.HTTP_200_OK)
-# async def get_live_poll(
-#         ref: str,
-#         session: Session = Depends(get_session)
-#     ) -> StreamingResponse:
-#     return 
+@router.get('/poll/{ref}/live', status_code=status.HTTP_200_OK)
+async def get_live_poll(
+        ref: str,
+        session: Session = Depends(get_session)
+    ) -> StreamingResponse:
+    query = select(Poll).where(Poll.ref == ref)
+    poll = session.exec(query).first()
+    if not poll:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='poll not found'
+        )
+    if not poll.is_open:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail='poll has been closed'
+        )
+    async def stream_live_poll():
+        while True:
+            vote = await vote_updates.get()
+            yield f"event: Poll\ndata: {vote}\n\n"
+    return StreamingResponse(stream_live_poll(), media_type='text/event-stream')
 
 
 @router.post('/poll/{ref}/vote', status_code=status.HTTP_200_OK)
@@ -97,6 +112,10 @@ async def poll_vote(
     option.chosen += 1
     session.add(option)
     session.commit()
+    await vote_updates.put({
+        'pref': ref,
+        'oid': vote.option_id
+    })
     return SuccessResponse(message='vote recorded')
 
 
