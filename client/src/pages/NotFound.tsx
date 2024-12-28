@@ -2,7 +2,7 @@ import { Link } from "react-router";
 
 const NotFound = () => {
   return (
-    <div className="rounded-lg bg-indigo-800 text-white text-center mt-10 max-w-2xl mx-auto px-5 py-16">
+    <div className="rounded-lg bg-indigo-800 text-white text-center mt-10 max-w-2xl md:mx-auto px-5 py-16 mx-3">
       <h1>404 - Page Not Found</h1>
       <p>
         The page you are looking for does not exist. Go back
