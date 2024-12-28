@@ -1,6 +1,13 @@
-import InputField from "./InputField";
+import { Navigate, Link } from "react-router";
+import InputField from "../components/InputField";
 
-function Authentication() {
+interface Props {
+  isAuthenticated: boolean;
+}
+
+function Login({ isAuthenticated }: Props) {
+  if (isAuthenticated) return <Navigate to="/dashboard" />;
+
   return (
     <div className="container mx-auto px-4 mt-16 max-w-md">
       <h1 className="mb-5 text-2xl font-semibold text-gray-900">Login</h1>
@@ -30,12 +37,12 @@ function Authentication() {
 
       <p className="mt-7">
         Don't have an account?{" "}
-        <a href="http://" className="text-indigo-800 hover:text-indigo-700">
+        <Link to="/signup" className="text-indigo-800 hover:text-indigo-700">
           Signup
-        </a>
+        </Link>
       </p>
     </div>
   );
 }
 
-export default Authentication;
+export default Login;
