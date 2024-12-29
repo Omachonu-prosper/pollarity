@@ -5,9 +5,20 @@ interface Props {
   id: string;
   placeholder: string;
   classNames?: string;
+  required?: boolean;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-function InputField({ label, type, name, id, placeholder, classNames }: Props) {
+function InputField({
+  label,
+  type,
+  name,
+  id,
+  placeholder,
+  classNames,
+  required,
+  onChange,
+}: Props) {
   return (
     <div className={"sm:col-span-4 " + classNames}>
       <label className="block text-sm/6 font-medium text-gray-900">
@@ -22,6 +33,8 @@ function InputField({ label, type, name, id, placeholder, classNames }: Props) {
             id={id}
             className="block min-w-0 grow py-1.5 pl-1 pr-3 text-base text-gray-900 placeholder:text-gray-400 focus:outline focus:outline-0 sm:text-sm/6"
             placeholder={placeholder}
+            onChange={onChange}
+            required={required}
           />
         </div>
       </div>
