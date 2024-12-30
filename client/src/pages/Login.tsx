@@ -11,8 +11,6 @@ function Login({ isAuthenticated }: Props) {
     document.title = "Login - Pollarity";
   }, []);
 
-  if (isAuthenticated) return <Navigate to="/dashboard" />;
-
   const [form, setForm] = useState({
     email: "",
     password: "",
@@ -26,6 +24,7 @@ function Login({ isAuthenticated }: Props) {
     }));
   }
 
+  if (isAuthenticated) return <Navigate to="/dashboard" />;
   return (
     <div className="container mx-auto px-4 mt-16 max-w-md">
       <h1 className="mb-5 text-2xl font-semibold text-gray-900">Login</h1>

@@ -1,16 +1,20 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { signup } from "../services/api";
-import { Navigate, Link } from "react-router";
+import { Navigate, Link, useNavigate } from "react-router";
 import InputField from "../components/InputField";
 import Alert from "../components/Alert";
 
 interface Props {
   isAuthenticated: boolean;
+  setIsAuthenticated: (isAuthenticated: boolean) => void;
 }
 
-function Signup({ isAuthenticated }: Props) {
-  if (isAuthenticated) return <Navigate to="/dashboard" />;
+function Signup({ isAuthenticated, setIsAuthenticated }: Props) {
+  useEffect(() => {
+    document.title = "Signup - Pollarity";
+  }, []);
 
+  const navigate = useNavigate();
   const [alertState, setAlertState] = useState({
     display: false,
     color: "",
@@ -45,6 +49,17 @@ function Signup({ isAuthenticated }: Props) {
     }, 5000);
   }
 
+  async function onSubmitHandler() {
+    let apiReq = await signup(form.username, form.email, form.password);
+    if (apiReq) {
+      navigate("/dashboard");
+      setIsAuthenticated(true);
+    } else {
+      showAlert("Oops!! try again later", "bg-red-400");
+    }
+  }
+
+  if (isAuthenticated) return <Navigate to="/dashboard" />;
   return (
     <div className="container mx-auto px-4 mt-16 max-w-md">
       <Alert
@@ -57,12 +72,7 @@ function Signup({ isAuthenticated }: Props) {
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          let apiReq = signup(form.username, form.email, form.password);
-          if (apiReq) {
-            showAlert("Signup successful", "bg-green-400");
-          } else {
-            showAlert("Oops!! try again later", "bg-red-400");
-          }
+          onSubmitHandler();
         }}
       >
         <InputField

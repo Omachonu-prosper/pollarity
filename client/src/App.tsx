@@ -13,7 +13,10 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route element={<PrivateRoute isAuthenticated={isAuthenticated} />}>
-          <Route path="/dashboard" element={<Dashboard />} />
+          <Route
+            path="/dashboard"
+            element={<Dashboard setIsAuthenticated={setIsAuthenticated} />}
+          />
         </Route>
 
         <Route
@@ -23,7 +26,12 @@ function App() {
 
         <Route
           path="/signup"
-          element={<Signup isAuthenticated={isAuthenticated} />}
+          element={
+            <Signup
+              isAuthenticated={isAuthenticated}
+              setIsAuthenticated={setIsAuthenticated}
+            />
+          }
         />
 
         <Route
