@@ -4,7 +4,7 @@ const api = axios.create({
     baseURL: import.meta.env.VITE_BASE_URL,
     timeout: 1000,
     headers: {
-        'X-Custom-Header': 'foobar',
+        'Content-Type': 'application/json',
         'x-api-key': import.meta.env.VITE_API_KEY
     }
 });
