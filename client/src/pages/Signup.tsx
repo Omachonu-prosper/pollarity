@@ -11,6 +11,11 @@ interface Props {
 function Signup({ isAuthenticated }: Props) {
   if (isAuthenticated) return <Navigate to="/dashboard" />;
 
+  const [alertState, setAlertState] = useState({
+    display: false,
+    color: "",
+    message: "",
+  });
   const [form, setForm] = useState({
     username: "",
     email: "",
@@ -25,15 +30,39 @@ function Signup({ isAuthenticated }: Props) {
     }));
   }
 
+  function showAlert(message: string, color: string) {
+    setAlertState({
+      display: true,
+      color: color,
+      message: message,
+    });
+    setTimeout(() => {
+      setAlertState({
+        display: false,
+        color: "",
+        message: "",
+      });
+    }, 5000);
+  }
+
   return (
     <div className="container mx-auto px-4 mt-16 max-w-md">
-      <Alert />
+      <Alert
+        display={alertState.display}
+        color={alertState.color}
+        message={alertState.message}
+      />
 
       <h1 className="mb-5 text-2xl font-semibold text-gray-900">Signup</h1>
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          signup(form.username, form.email, form.password);
+          let apiReq = signup(form.username, form.email, form.password);
+          if (apiReq) {
+            showAlert("Signup successful", "bg-green-400");
+          } else {
+            showAlert("Oops!! try again later", "bg-red-400");
+          }
         }}
       >
         <InputField
