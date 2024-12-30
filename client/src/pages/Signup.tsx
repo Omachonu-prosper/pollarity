@@ -52,8 +52,8 @@ function Signup({ isAuthenticated, setIsAuthenticated }: Props) {
   async function onSubmitHandler() {
     let apiReq = await signup(form.username, form.email, form.password);
     if (apiReq) {
-      navigate("/dashboard");
       setIsAuthenticated(true);
+      navigate("/dashboard");
     } else {
       showAlert("Oops!! try again later", "bg-red-400");
     }

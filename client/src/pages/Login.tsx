@@ -1,16 +1,25 @@
-import { Navigate, Link } from "react-router";
+import { Navigate, Link, useNavigate } from "react-router";
 import { useState, useEffect } from "react";
+import { login } from "../services/api";
+import Alert from "../components/Alert";
 import InputField from "../components/InputField";
 
 interface Props {
   isAuthenticated: boolean;
+  setIsAuthenticated: (isAuthenticated: boolean) => void;
 }
 
-function Login({ isAuthenticated }: Props) {
+function Login({ isAuthenticated, setIsAuthenticated }: Props) {
   useEffect(() => {
     document.title = "Login - Pollarity";
   }, []);
 
+  const navigate = useNavigate();
+  const [alertState, setAlertState] = useState({
+    display: false,
+    color: "",
+    message: "",
+  });
   const [form, setForm] = useState({
     email: "",
     password: "",
@@ -24,16 +33,46 @@ function Login({ isAuthenticated }: Props) {
     }));
   }
 
+  function showAlert(message: string, color: string) {
+    setAlertState({
+      display: true,
+      color: color,
+      message: message,
+    });
+    setTimeout(() => {
+      setAlertState({
+        display: false,
+        color: "",
+        message: "",
+      });
+    }, 5000);
+  }
+
+  async function onSubmitHandler() {
+    let apiReq = await login(form.email, form.password);
+    if (apiReq.success) {
+      setIsAuthenticated(true);
+      navigate("/dashboard");
+    } else {
+      showAlert(apiReq.message, "bg-red-400");
+    }
+  }
+
   if (isAuthenticated) return <Navigate to="/dashboard" />;
   return (
     <div className="container mx-auto px-4 mt-16 max-w-md">
+      <Alert
+        display={alertState.display}
+        color={alertState.color}
+        message={alertState.message}
+      />
+
       <h1 className="mb-5 text-2xl font-semibold text-gray-900">Login</h1>
 
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          console.log(e);
-          console.log(form);
+          onSubmitHandler();
         }}
       >
         <InputField
