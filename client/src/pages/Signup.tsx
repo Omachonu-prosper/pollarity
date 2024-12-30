@@ -2,6 +2,7 @@ import { useState } from "react";
 import { signup } from "../services/api";
 import { Navigate, Link } from "react-router";
 import InputField from "../components/InputField";
+import Alert from "../components/Alert";
 
 interface Props {
   isAuthenticated: boolean;
@@ -26,8 +27,9 @@ function Signup({ isAuthenticated }: Props) {
 
   return (
     <div className="container mx-auto px-4 mt-16 max-w-md">
-      <h1 className="mb-5 text-2xl font-semibold text-gray-900">Signup</h1>
+      <Alert />
 
+      <h1 className="mb-5 text-2xl font-semibold text-gray-900">Signup</h1>
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -66,7 +68,7 @@ function Signup({ isAuthenticated }: Props) {
           onChange={onChangeListener}
         />
 
-        <button className="bg-indigo-800 hover:bg-indigo-700 text-white py-2 px-3 mt-5 rounded w-full">
+        <button className="bg-indigo-800 hover:bg-indigo-700 text-white py-2 px-3 mt-5 rounded-md w-full">
           Signup
         </button>
       </form>

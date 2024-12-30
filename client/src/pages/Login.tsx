@@ -53,7 +53,7 @@ function Login({ isAuthenticated }: Props) {
           onChange={onChangeListener}
         />
 
-        <button className="bg-indigo-800 hover:bg-indigo-700 text-white py-2 px-3 mt-5 rounded w-full">
+        <button className="bg-indigo-800 hover:bg-indigo-700 text-white py-2 px-3 mt-5 rounded-md w-full">
           Login
         </button>
       </form>
