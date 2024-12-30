@@ -1,5 +1,5 @@
 import { Navigate, Link } from "react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import InputField from "../components/InputField";
 
 interface Props {
@@ -7,6 +7,10 @@ interface Props {
 }
 
 function Login({ isAuthenticated }: Props) {
+  useEffect(() => {
+    document.title = "Login - Pollarity";
+  }, []);
+
   if (isAuthenticated) return <Navigate to="/dashboard" />;
 
   const [form, setForm] = useState({

@@ -1,6 +1,11 @@
 import { Link } from "react-router";
+import { useEffect } from "react";
 
 const NotFound = () => {
+  useEffect(() => {
+    document.title = "Not found (404) - Pollarity";
+  }, []);
+
   return (
     <div className="rounded-lg bg-indigo-800 text-white text-center mt-10 max-w-2xl md:mx-auto px-5 py-16 mx-3">
       <h1>404 - Page Not Found</h1>
