@@ -17,7 +17,9 @@ async function signup(username: string, email: string, password: string): Promis
     else return false;
 }
 
-async function login(email: string, password: string): Promise<{success: boolean, message: string}> {
+async function login(email: string, password: string): Promise<{
+    success: boolean, message: string, token: string, data: object | null
+}> {
     let req = await api.post('/user/login', {
         email, password
     }).then((res) => {
@@ -27,9 +29,16 @@ async function login(email: string, password: string): Promise<{success: boolean
     })
     if (req.status == 200) return {
         success: true,
+        token: req.data.data.access_token,
+        data: req.data.data.user_details,
         message: ''
     }
-    return {success: false, message: req.response.data.detail}
+    return {
+        success: false,
+        message: req.response.data.detail,
+        token: '',
+        data: null
+    }
 }
 
 export {

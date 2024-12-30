@@ -1,13 +1,35 @@
 import { useEffect, useState } from "react";
 import { Navigate, BrowserRouter, Routes, Route } from "react-router";
+import { jwtDecode } from "jwt-decode";
 import PrivateRoute from "./components/PrivateRoute";
 import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import NotFound from "./pages/NotFound";
 
+interface DecodedToken {
+  exp: number;
+  [key: string]: any;
+}
+
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const token = sessionStorage.getItem("AuthToken");
+    try {
+      const decoded: DecodedToken = jwtDecode(token ? token : "");
+      const now = Date.now();
+      if (decoded.exp && decoded.exp * 1000 > now) {
+        setIsAuthenticated(true);
+      } else {
+        throw new Error("Expired token");
+      }
+    } catch {
+      setIsAuthenticated(false);
+      sessionStorage.removeItem("AuthToken");
+    }
+  }, []);
 
   return (
     <BrowserRouter>

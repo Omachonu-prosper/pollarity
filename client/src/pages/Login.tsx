@@ -52,6 +52,7 @@ function Login({ isAuthenticated, setIsAuthenticated }: Props) {
     let apiReq = await login(form.email, form.password);
     if (apiReq.success) {
       setIsAuthenticated(true);
+      sessionStorage.setItem("AuthToken", apiReq.token);
       navigate("/dashboard");
     } else {
       showAlert(apiReq.message, "bg-red-400");

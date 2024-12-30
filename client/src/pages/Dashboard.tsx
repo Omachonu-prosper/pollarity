@@ -13,7 +13,13 @@ function Dashboard({ setIsAuthenticated }: Props) {
   return (
     <h1>
       Welcome to your Dashboard.
-      <Link to={"/login"} onClick={() => setIsAuthenticated(false)}>
+      <Link
+        to={"/login"}
+        onClick={() => {
+          setIsAuthenticated(false);
+          sessionStorage.removeItem("AuthToken");
+        }}
+      >
         Logout
       </Link>{" "}
     </h1>
