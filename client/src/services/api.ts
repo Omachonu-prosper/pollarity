@@ -9,12 +9,29 @@ const api = axios.create({
     }
 });
 
-async function signup(username: string, email: string, password: string): Promise<boolean> {
+async function signup(username: string, email: string, password: string): Promise<{
+    success: boolean, message: string, token: string, data: object | null
+}> {
     let req = await api.post('/user/signup', {
         username, email, password
+    }).then(res => {
+        return res
+    }).catch(err => {
+        return err
     })
-    if (req.status == 201) return true;
-    else return false;
+    console.log(req)
+    if (req.status == 201) return {
+        success: true,
+        token: req.data.data.access_token,
+        data: req.data.data.user_details,
+        message: ''
+    }
+    return {
+        success: false,
+        message: req.response.data.detail,
+        token: '',
+        data: null
+    }
 }
 
 async function login(email: string, password: string): Promise<{
