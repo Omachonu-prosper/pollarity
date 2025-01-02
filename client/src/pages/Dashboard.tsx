@@ -1,5 +1,7 @@
 import { useEffect } from "react";
-import { Link } from "react-router";
+import { Outlet, useLocation, Navigate } from "react-router";
+import MainArea from "../components/MainArea";
+import SidePanel from "../components/SidePanel";
 
 interface Props {
   setIsAuthenticated: (isAuthenticated: boolean) => void;
@@ -10,19 +12,15 @@ function Dashboard({ setIsAuthenticated }: Props) {
     document.title = "Dashboard - Pollarity";
   }, []);
 
+  let loc = useLocation();
+  if (loc.pathname == "/dashboard") return <Navigate to={"/dashboard/polls"} />;
   return (
-    <h1>
-      Welcome to your Dashboard.
-      <Link
-        to={"/login"}
-        onClick={() => {
-          setIsAuthenticated(false);
-          sessionStorage.removeItem("AuthToken");
-        }}
-      >
-        Logout
-      </Link>{" "}
-    </h1>
+    <div className="flex">
+      <SidePanel setIsAuthenticated={setIsAuthenticated} />
+      <MainArea>
+        <Outlet />
+      </MainArea>
+    </div>
   );
 }
 

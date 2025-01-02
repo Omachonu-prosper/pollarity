@@ -6,6 +6,8 @@ import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import NotFound from "./pages/NotFound";
+import MyPolls from "./pages/MyPolls";
+import NewPoll from "./pages/NewPoll";
 
 interface DecodedToken {
   exp: number;
@@ -38,7 +40,10 @@ function App() {
           <Route
             path="/dashboard"
             element={<Dashboard setIsAuthenticated={setIsAuthenticated} />}
-          />
+          >
+            <Route path="polls" element={<MyPolls />} />
+            <Route path="poll/new" element={<NewPoll />} />
+          </Route>
         </Route>
 
         <Route
