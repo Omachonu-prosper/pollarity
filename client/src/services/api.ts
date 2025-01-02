@@ -5,9 +5,21 @@ const api = axios.create({
     timeout: 1000,
     headers: {
         'Content-Type': 'application/json',
-        'x-api-key': import.meta.env.VITE_API_KEY
+        'x-api-key': import.meta.env.VITE_API_KEY,
+        'Authorization': `Bearer ${sessionStorage.getItem('AuthToken')}`
     }
 });
+
+
+export interface Poll {
+    id: number;
+    created_at: string;
+    is_anonymous: boolean;
+    is_open: boolean;
+    ref: string;
+    title: string;
+    user_is: number;
+}
 
 async function signup(username: string, email: string, password: string): Promise<{
     success: boolean, message: string, token: string, data: object | null
@@ -58,6 +70,24 @@ async function login(email: string, password: string): Promise<{
     }
 }
 
+async function fetchUserPolls(): Promise<{
+    success: boolean, data: Poll[]
+}> {
+    let req = await api.get('/user/polls',).then((res) => {
+        return res
+    }).catch((err) => {
+        return err
+    })
+    if (req.status == 200) return {
+        success: true,
+        data: req.data.data,
+    }
+    return {
+        success: false,
+        data: []
+    }
+}
+
 export {
-    signup, login
+    signup, login, fetchUserPolls
 }
