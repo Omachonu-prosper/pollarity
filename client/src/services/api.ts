@@ -28,7 +28,7 @@ async function signup(username: string, email: string, password: string): Promis
     }
     return {
         success: false,
-        message: req.response.data.detail,
+        message: req.response ? req.response.data.detail : 'An unexpected error occured',
         token: '',
         data: null
     }
@@ -52,7 +52,7 @@ async function login(email: string, password: string): Promise<{
     }
     return {
         success: false,
-        message: req.response.data.detail,
+        message: req.response ? req.response.data.detail : 'An unexpected error occured',
         token: '',
         data: null
     }
