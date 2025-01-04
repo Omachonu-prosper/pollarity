@@ -6,7 +6,6 @@ const api = axios.create({
     headers: {
         'Content-Type': 'application/json',
         'x-api-key': import.meta.env.VITE_API_KEY,
-        'Authorization': `Bearer ${sessionStorage.getItem('AuthToken')}`
     }
 });
 
@@ -73,7 +72,11 @@ async function login(email: string, password: string): Promise<{
 async function fetchUserPolls(): Promise<{
     success: boolean, data: Poll[]
 }> {
-    let req = await api.get('/user/polls',).then((res) => {
+    let req = await api.get('/user/polls', {
+        headers: {
+            Authorization: `Bearer ${sessionStorage.getItem('AuthToken')}`
+        }
+    }).then((res) => {
         return res
     }).catch((err) => {
         return err
