@@ -17,7 +17,23 @@ export interface Poll {
     is_open: boolean;
     ref: string;
     title: string;
-    user_is: number;
+    user_id: number;
+}
+
+export interface PollWithOptions {
+    id: number;
+    created_at: string;
+    is_anonymous: boolean;
+    is_open: boolean;
+    ref: string;
+    title: string;
+    user_id: number;
+    options: Array<{
+        choice: string;
+        chosen: number;
+        id: number
+    }>;
+    total_chosen: number;
 }
 
 async function signup(username: string, email: string, password: string): Promise<{
@@ -91,6 +107,24 @@ async function fetchUserPolls(): Promise<{
     }
 }
 
+async function fetchPoll(pollRef: string): Promise<{
+    success: boolean, data?: PollWithOptions
+}> {
+    let req = await api.get(`poll/${pollRef}`,)
+    .then((res) => {
+        return res
+    }).catch((err) => {
+        return err
+    })
+    if (req.status == 200) return {
+        success: true,
+        data: req.data.data.poll,
+    }
+    return {
+        success: false,
+    }
+}
+
 export {
-    signup, login, fetchUserPolls
+    signup, login, fetchUserPolls, fetchPoll
 }
