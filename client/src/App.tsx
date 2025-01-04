@@ -8,6 +8,8 @@ import Signup from "./pages/Signup";
 import NotFound from "./pages/NotFound";
 import MyPolls from "./pages/MyPolls";
 import NewPoll from "./pages/NewPoll";
+import UserPoll from "./pages/UserPoll";
+import PollPage from "./pages/Poll";
 
 interface DecodedToken {
   exp: number;
@@ -43,8 +45,11 @@ function App() {
           >
             <Route path="polls" element={<MyPolls />} />
             <Route path="poll/new" element={<NewPoll />} />
+            <Route path="poll/:pollRef" element={<UserPoll />} />
           </Route>
         </Route>
+
+        <Route path="/poll/:pollRef" element={<PollPage />} />
 
         <Route
           path="/login"

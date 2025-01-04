@@ -13,6 +13,7 @@ function Dashboard({ setIsAuthenticated }: Props) {
   }, []);
 
   let loc = useLocation();
+  console.log(loc.pathname == "/dashboard", loc.pathname);
   if (loc.pathname == "/dashboard") return <Navigate to={"/dashboard/polls"} />;
   return (
     <div className="flex">

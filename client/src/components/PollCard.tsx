@@ -1,3 +1,4 @@
+import { Link } from "react-router";
 import { Poll } from "../services/api";
 import { formatDistance, subDays } from "date-fns";
 
@@ -25,9 +26,12 @@ function PollCard({ pollData }: Props) {
         {pollData.title}
       </div>
       <div className="text-xs text-gray-500">{relativeDate}</div>
-      <div className="bg-indigo-800 px-3 py-1 rounded-md mt-4 text-center text-white hover:cursor-pointer hover:bg-indigo-700">
+      <Link
+        to={"/dashboard/poll/" + pollData.ref}
+        className="bg-indigo-800 px-3 py-1 rounded-md mt-4 inline-block text-center text-white hover:cursor-pointer hover:bg-indigo-700"
+      >
         View poll
-      </div>
+      </Link>
     </div>
   );
 }
