@@ -34,7 +34,6 @@ function UserPoll() {
 
     poll();
   }, []);
-  console.log(pollData);
   if (loadingState) return <div>Loading poll data...</div>;
 
   return (

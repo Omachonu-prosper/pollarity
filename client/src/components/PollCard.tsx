@@ -12,6 +12,18 @@ function PollCard({ pollData, withOptions, className }: Props) {
   let createdAt = new Date(pollData.created_at);
   let now = new Date();
   let relativeDate = formatDistance(createdAt, now, { addSuffix: true });
+  const optionsGradient = (choices: number, total: number) => {
+    let coverage = (choices / total) * 100;
+    return total == 0
+      ? {
+          background: "rgb(203 213 225)",
+        }
+      : {
+          background: `
+      linear-gradient(90deg, rgb(100 116 139) 0%, rgb(100 116 139) ${coverage}%, rgb(203 213 225) ${coverage}%, rgb(203 213 225) 100%)
+    `,
+        };
+  };
 
   return (
     <div className={className}>
@@ -36,7 +48,8 @@ function PollCard({ pollData, withOptions, className }: Props) {
                 <div className="text-sm">{option.choice}</div>
                 <div
                   id={String(option.id)}
-                  className="w-full p-1 text-white text-center bg-slate-500"
+                  style={optionsGradient(option.chosen, pollData.total_chosen)}
+                  className="w-full p-1 text-white text-center"
                 >
                   {option.chosen}
                 </div>
