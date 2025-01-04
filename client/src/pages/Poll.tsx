@@ -63,10 +63,19 @@ function PollPage() {
   }
 
   async function handleOptionClick(e: React.MouseEvent) {
+    let optionId = e.currentTarget.id;
     if (pollData.is_open) {
-      const res = await vote(pollData.ref, Number(e.currentTarget.id));
-      if (res.success) showAlert("Vote recorded", "bg-green-400");
-      else showAlert("Vote could not be recorded", "bg-red-400");
+      if (sessionStorage.getItem(pollData.ref)) {
+        showAlert("Vote alreay recorded", "bg-red-400");
+      } else {
+        const res = await vote(pollData.ref, Number(optionId));
+        if (res.success) {
+          showAlert("Vote recorded", "bg-green-400");
+          sessionStorage.setItem(pollData.ref, optionId);
+        } else showAlert("Vote could not be recorded", "bg-red-400");
+      }
+    } else {
+      showAlert("Poll has been closed", "bg-red-400");
     }
   }
 
@@ -95,6 +104,7 @@ function PollPage() {
         pollData={pollData}
         className="bg-slate-100 w-3/4 mx-auto rounded-md p-4 mt-16"
         onOptionClick={handleOptionClick}
+        choice={Number(sessionStorage.getItem(pollData.ref))}
       />
     </div>
   );

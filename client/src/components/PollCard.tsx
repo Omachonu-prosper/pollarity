@@ -1,15 +1,23 @@
 import { Link } from "react-router";
 import { Poll } from "../services/api";
-import { formatDistance, subDays } from "date-fns";
+import { formatDistance } from "date-fns";
+import { Icon } from "@iconify-icon/react";
 
 interface Props {
   pollData: Poll;
   withOptions: boolean;
   className?: string;
   onOptionClick?: (e: React.MouseEvent) => void;
+  choice?: number;
 }
 
-function PollCard({ pollData, withOptions, className, onOptionClick }: Props) {
+function PollCard({
+  pollData,
+  withOptions,
+  className,
+  choice,
+  onOptionClick,
+}: Props) {
   let createdAt = new Date(pollData.created_at);
   let now = new Date();
   let relativeDate = formatDistance(createdAt, now, { addSuffix: true });
@@ -52,6 +60,9 @@ function PollCard({ pollData, withOptions, className, onOptionClick }: Props) {
                   onClick={onOptionClick}
                 >
                   {option.chosen}
+                  {choice == option.id ? (
+                    <Icon icon="mdi:tick-circle" className="text-white pl-2" />
+                  ) : null}
                 </div>
               </div>
             );
