@@ -53,6 +53,9 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 def generate_poll_ref() -> str:
     return str(uuid.uuid4().hex)
 
+def timestamp() -> str:
+    return datetime.now()
+
 
 async def create_access_token(user_id: int | None):
     to_encode = {

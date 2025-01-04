@@ -1,4 +1,3 @@
-from datetime import datetime
 from pydantic import BaseModel
 from sqlmodel import Field, SQLModel, Relationship
 
@@ -32,7 +31,7 @@ class PollBase(SQLModel):
 
 class Poll(PollBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
-    created_at: datetime = Field(default=datetime.now())
+    created_at: str = Field()
     is_open: bool = Field(default=True)
     is_anonymous: bool = Field(default=True)
     ref: str = Field(index=True)
@@ -46,7 +45,7 @@ class PollCreate(PollBase):
 
 
 class PollPublic(PollBase):
-    created_at: datetime
+    created_at: str
     is_anonymous: bool
     user_id: int
     is_open: bool

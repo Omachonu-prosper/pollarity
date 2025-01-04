@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, status, HTTPException
 from fastapi.responses import StreamingResponse
 from sqlmodel import Session, select
-from dependencies import SuccessResponse, get_session, verify_access_token, generate_poll_ref, vote_updates
+from dependencies import SuccessResponse, get_session, verify_access_token, generate_poll_ref, timestamp, vote_updates
 from models import PollCreate, Poll, PollPublic, Option, OptionPublic, User, Vote
 
 router = APIRouter(
@@ -15,7 +15,7 @@ async def create_poll(
         session: Session = Depends(get_session),
         user: User = Depends(verify_access_token)
     ) -> SuccessResponse:
-    db_poll = Poll(title=poll.title, user_id=user.id, ref=generate_poll_ref())
+    db_poll = Poll(title=poll.title, user_id=user.id, ref=generate_poll_ref(), created_at=timestamp())
     session.add(db_poll)
     session.commit()
     session.refresh(db_poll)
