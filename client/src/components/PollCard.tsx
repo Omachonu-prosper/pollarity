@@ -4,15 +4,17 @@ import { formatDistance, subDays } from "date-fns";
 
 interface Props {
   pollData: Poll;
+  withOptions: boolean;
+  className?: string;
 }
 
-function PollCard({ pollData }: Props) {
+function PollCard({ pollData, withOptions, className }: Props) {
   let createdAt = new Date(pollData.created_at);
   let now = new Date();
   let relativeDate = formatDistance(createdAt, now, { addSuffix: true });
 
   return (
-    <div className="bg-slate-200 w-2/4 lg:w-1/4 mx-2 rounded-md p-4">
+    <div className={className}>
       {pollData.is_open ? (
         <div className="bg-green-600 inline py-1 px-2 rounded-2xl text-white">
           active
@@ -26,12 +28,31 @@ function PollCard({ pollData }: Props) {
         {pollData.title}
       </div>
       <div className="text-xs text-gray-500">{relativeDate}</div>
-      <Link
-        to={"/dashboard/poll/" + pollData.ref}
-        className="bg-indigo-800 px-3 py-1 rounded-md mt-4 inline-block text-center text-white hover:cursor-pointer hover:bg-indigo-700"
-      >
-        View poll
-      </Link>
+      {withOptions ? (
+        <div className="mt-5">
+          {pollData.options.map((option, index) => {
+            return (
+              <div key={index} className="mt-3">
+                <div className="text-sm">{option.choice}</div>
+                <div
+                  id={String(option.id)}
+                  className="w-full p-1 text-white text-center bg-slate-500"
+                >
+                  {option.chosen}
+                </div>
+              </div>
+            );
+          })}
+          <div className="mt-3">total votes: {pollData.total_chosen}</div>
+        </div>
+      ) : (
+        <Link
+          to={"/dashboard/poll/" + pollData.ref}
+          className="bg-indigo-800 px-3 py-1 rounded-md mt-4 inline-block text-center text-white hover:cursor-pointer hover:bg-indigo-700"
+        >
+          View poll
+        </Link>
+      )}
     </div>
   );
 }

@@ -27,7 +27,14 @@ function MyPolls() {
   return (
     <div className="flex gap-2 mt-5 items-start">
       {pollData.map((poll, index) => {
-        return <PollCard key={index} pollData={poll} />;
+        return (
+          <PollCard
+            withOptions={false}
+            key={index}
+            pollData={poll}
+            className="bg-slate-200 w-2/4 lg:w-1/4 mx-2 rounded-md p-4"
+          />
+        );
       })}
     </div>
   );

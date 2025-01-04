@@ -9,18 +9,7 @@ const api = axios.create({
     }
 });
 
-
 export interface Poll {
-    id: number;
-    created_at: string;
-    is_anonymous: boolean;
-    is_open: boolean;
-    ref: string;
-    title: string;
-    user_id: number;
-}
-
-export interface PollWithOptions {
     id: number;
     created_at: string;
     is_anonymous: boolean;
@@ -108,7 +97,7 @@ async function fetchUserPolls(): Promise<{
 }
 
 async function fetchPoll(pollRef: string): Promise<{
-    success: boolean, data?: PollWithOptions
+    success: boolean, data?: Poll
 }> {
     let req = await api.get(`poll/${pollRef}`,)
     .then((res) => {
