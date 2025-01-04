@@ -3,9 +3,10 @@
 import { useParams } from "react-router";
 import { useEffect, useState } from "react";
 import { Poll } from "../services/api";
-import { fetchPoll } from "../services/api";
+import { fetchPoll, vote } from "../services/api";
 import NotFound from "./NotFound";
 import PollCard from "../components/PollCard";
+import Alert from "../components/Alert";
 
 function PollPage() {
   const defaultPollWithOptions = {
@@ -23,6 +24,11 @@ function PollPage() {
   const [pollData, setPollData] = useState<Poll>(defaultPollWithOptions);
   const { pollRef } = useParams();
   const [reqSuccessful, setRequestSuccessful] = useState(false);
+  const [alertState, setAlertState] = useState({
+    display: false,
+    color: "",
+    message: "",
+  });
 
   useEffect(() => {
     document.title = "My Polls - Pollarity";
@@ -41,6 +47,29 @@ function PollPage() {
     poll();
   }, []);
 
+  function showAlert(message: string, color: string) {
+    setAlertState({
+      display: true,
+      color: color,
+      message: message,
+    });
+    setTimeout(() => {
+      setAlertState({
+        display: false,
+        color: "",
+        message: "",
+      });
+    }, 5000);
+  }
+
+  async function handleOptionClick(e: React.MouseEvent) {
+    if (pollData.is_open) {
+      const res = await vote(pollData.ref, Number(e.currentTarget.id));
+      if (res.success) showAlert("Vote recorded", "bg-green-400");
+      else showAlert("Vote could not be recorded", "bg-red-400");
+    }
+  }
+
   if (loadingState)
     return (
       <div className="flex items-center justify-center h-screen">
@@ -55,10 +84,17 @@ function PollPage() {
 
   return (
     <div>
+      <Alert
+        display={alertState.display}
+        color={alertState.color}
+        message={alertState.message}
+      />
+
       <PollCard
         withOptions={true}
         pollData={pollData}
         className="bg-slate-100 w-3/4 mx-auto rounded-md p-4 mt-16"
+        onOptionClick={handleOptionClick}
       />
     </div>
   );

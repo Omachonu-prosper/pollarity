@@ -99,7 +99,7 @@ async function fetchUserPolls(): Promise<{
 async function fetchPoll(pollRef: string): Promise<{
     success: boolean, data?: Poll
 }> {
-    let req = await api.get(`poll/${pollRef}`,)
+    let req = await api.get(`poll/${pollRef}`)
     .then((res) => {
         return res
     }).catch((err) => {
@@ -114,6 +114,24 @@ async function fetchPoll(pollRef: string): Promise<{
     }
 }
 
+async function vote(pollRef: string, optionId: number): Promise<{
+    success: boolean, 
+}> {
+    let req = await api.post(`poll/${pollRef}/vote`, {
+        option_id: optionId
+    }).then((res) => {
+        return res
+    }).catch((err) => {
+        return err
+    })
+    if (req.status == 200) return {
+        success: true,
+    }
+    return {
+        success: false,
+    }
+}
+
 export {
-    signup, login, fetchUserPolls, fetchPoll
+    signup, login, fetchUserPolls, fetchPoll, vote
 }

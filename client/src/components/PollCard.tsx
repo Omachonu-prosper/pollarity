@@ -6,9 +6,10 @@ interface Props {
   pollData: Poll;
   withOptions: boolean;
   className?: string;
+  onOptionClick?: (e: React.MouseEvent) => void;
 }
 
-function PollCard({ pollData, withOptions, className }: Props) {
+function PollCard({ pollData, withOptions, className, onOptionClick }: Props) {
   let createdAt = new Date(pollData.created_at);
   let now = new Date();
   let relativeDate = formatDistance(createdAt, now, { addSuffix: true });
@@ -19,9 +20,7 @@ function PollCard({ pollData, withOptions, className }: Props) {
           background: "rgb(203 213 225)",
         }
       : {
-          background: `
-      linear-gradient(90deg, rgb(100 116 139) 0%, rgb(100 116 139) ${coverage}%, rgb(203 213 225) ${coverage}%, rgb(203 213 225) 100%)
-    `,
+          background: `linear-gradient(90deg, rgb(100 116 139) 0%, rgb(100 116 139) ${coverage}%, rgb(203 213 225) ${coverage}%, rgb(203 213 225) 100%)`,
         };
   };
 
@@ -50,6 +49,7 @@ function PollCard({ pollData, withOptions, className }: Props) {
                   id={String(option.id)}
                   style={optionsGradient(option.chosen, pollData.total_chosen)}
                   className="w-full p-1 text-white text-center"
+                  onClick={onOptionClick}
                 >
                   {option.chosen}
                 </div>
