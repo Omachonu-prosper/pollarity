@@ -1,6 +1,4 @@
-import bcrypt
-import jwt
-import asyncio
+import bcrypt, jwt, asyncio, uuid
 from datetime import datetime, timedelta, timezone
 from pydantic import BaseModel
 from typing import Annotated
@@ -50,6 +48,10 @@ def hash_password(password: str) -> str:
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password.encode('utf-8'))
+
+
+def generate_poll_ref() -> str:
+    return str(uuid.uuid4().hex)
 
 
 async def create_access_token(user_id: int | None):

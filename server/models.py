@@ -1,4 +1,3 @@
-import uuid 
 from datetime import datetime
 from pydantic import BaseModel
 from sqlmodel import Field, SQLModel, Relationship
@@ -36,7 +35,7 @@ class Poll(PollBase, table=True):
     created_at: datetime = Field(default=datetime.now())
     is_open: bool = Field(default=True)
     is_anonymous: bool = Field(default=True)
-    ref: str = Field(default=str(uuid.uuid4().hex), index=True)
+    ref: str = Field(index=True)
     user_id: int | None = Field(foreign_key='user.id')
     user: User = Relationship(back_populates='polls')
     options_: list['Option'] = Relationship(back_populates='poll')
