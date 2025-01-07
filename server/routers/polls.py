@@ -1,7 +1,8 @@
+import asyncio
 from fastapi import APIRouter, Depends, status, HTTPException
 from fastapi.responses import StreamingResponse
 from sqlmodel import Session, select
-from dependencies import SuccessResponse, get_session, verify_access_token, generate_poll_ref, timestamp, vote_updates
+from dependencies import *
 from models import PollCreate, Poll, PollPublic, Option, OptionPublic, User, Vote
 
 router = APIRouter(
@@ -78,9 +79,21 @@ async def get_live_poll(
             detail='poll has been closed'
         )
     async def stream_live_poll():
+        session_id = generate_session_id()
+        poll_conns = poll_connections.get(ref, None)
+        if poll_conns:
+            poll_conns[session_id] = asyncio.Queue()
+        else:
+            print('setting')
+            poll_connections[ref] = {
+                session_id: asyncio.Queue()
+            }
         while True:
-            vote = await vote_updates.get()
-            yield f"event: Poll\ndata: {vote}\n\n"
+            try:
+                vote = await poll_connections[ref][session_id].get()
+                yield f"event: vote\ndata: {vote}\n\n"
+            except Exception as e:
+                return
     return StreamingResponse(stream_live_poll(), media_type='text/event-stream')
 
 
@@ -112,10 +125,10 @@ async def poll_vote(
     option.chosen += 1
     session.add(option)
     session.commit()
-    await vote_updates.put({
-        'pref': ref,
-        'oid': vote.option_id
-    })
+    conns = poll_connections.get(ref, {})
+    for value in conns.values():
+        # We send the option that was chosen (voted for) so the client can update accordingly
+        await value.put({'oid': vote.option_id})
     return SuccessResponse(message='vote recorded')
 
 

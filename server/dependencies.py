@@ -1,4 +1,4 @@
-import bcrypt, jwt, asyncio, uuid
+import bcrypt, jwt, uuid
 from datetime import datetime, timedelta, timezone
 from pydantic import BaseModel
 from typing import Annotated
@@ -7,12 +7,14 @@ from sqlmodel import create_engine, SQLModel, Session, select
 from models import User
 from config import Config
 
+# Database Configurations 
 sqlite_filename = 'database.db'
 sqlite_url = f'sqlite:///{sqlite_filename}'
 connect_args = {'check_same_thread': False}
 engine = create_engine(sqlite_url, connect_args=connect_args)
 
-vote_updates = asyncio.Queue()
+# Voting Configurations
+poll_connections = dict()
 
 
 class SuccessResponse(BaseModel):
@@ -53,8 +55,13 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 def generate_poll_ref() -> str:
     return str(uuid.uuid4().hex)
 
+
 def timestamp() -> str:
     return datetime.now()
+
+
+def generate_session_id() -> str:
+    return str(uuid.uuid1().hex)
 
 
 async def create_access_token(user_id: int | None):
