@@ -12,7 +12,8 @@ async def lifespan(_: FastAPI):
     yield
     
 
-app = FastAPI(dependencies=[Depends(validate_api_key)], lifespan=lifespan)
+# app = FastAPI(dependencies=[Depends(validate_api_key)], lifespan=lifespan)
+app = FastAPI(lifespan=lifespan)
 
 
 app.add_middleware(
