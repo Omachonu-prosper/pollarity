@@ -1,4 +1,4 @@
-import asyncio
+import asyncio, json
 from fastapi import APIRouter, Depends, status, HTTPException
 from fastapi.responses import StreamingResponse
 from sqlmodel import Session, select
@@ -128,7 +128,7 @@ async def poll_vote(
     conns = poll_connections.get(ref, {})
     for value in conns.values():
         # We send the option that was chosen (voted for) so the client can update accordingly
-        await value.put({'oid': vote.option_id})
+        await value.put(json.dumps({'oid': vote.option_id}))
     return SuccessResponse(message='vote recorded')
 
 
