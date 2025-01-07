@@ -35,7 +35,7 @@ function MyPolls() {
   if (pollData.length == 0) return <div>No poll data to display</div>;
 
   return (
-    <div className="flex gap-2 mt-5 items-start">
+    <div className="flex gap-2 mt-5 items-start p-5">
       {pollData.map((poll, index) => {
         return (
           <PollCard

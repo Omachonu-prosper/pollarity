@@ -5,6 +5,7 @@ import { useParams, Link } from "react-router";
 import { Icon } from "@iconify-icon/react";
 import { fetchPoll, Poll } from "../services/api";
 import PollCard from "../components/PollCard";
+import Confirmation from "../components/Confirmation";
 
 function UserPoll() {
   const defaultPollWithOptions = {
@@ -22,6 +23,7 @@ function UserPoll() {
   const [loadingState, setLoadingState] = useState(true);
   const [pollData, setPollData] = useState<Poll>(defaultPollWithOptions);
   const [copied, setCopied] = useState(false);
+  const [displayConfirmation, setDisplayconfirmation] = useState(false);
 
   useEffect(() => {
     document.title = `Poll [${pollRef}] - Pollarity`;
@@ -39,6 +41,19 @@ function UserPoll() {
     poll();
   }, []);
 
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setDisplayconfirmation(false);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  });
+
   async function handleCopy() {
     try {
       let textToCopy = `${window.location.protocol}//${window.location.host}/poll/${pollRef}`;
@@ -53,6 +68,10 @@ function UserPoll() {
     }, 2000);
   }
 
+  function closeConfirmationDialogue() {
+    setDisplayconfirmation(false);
+  }
+
   if (loadingState)
     return (
       <div className="flex items-center justify-center h-screen">
@@ -65,9 +84,14 @@ function UserPoll() {
 
   return (
     <div>
+      <Confirmation
+        display={displayConfirmation}
+        handleClose={closeConfirmationDialogue}
+      />
+
       <Link
         to={"/dashboard/polls"}
-        className="text-indigo-600 hover:text-indigo-400"
+        className="text-indigo-600 hover:text-indigo-400 m-5 inline-block"
       >
         <Icon icon="weui:back-filled" className="mr-2 inline-block" />
         All polls
@@ -79,9 +103,9 @@ function UserPoll() {
           pollData={pollData}
           className="bg-slate-100 w-3/4 mx-auto rounded-md p-4 mt-5"
         />
-        <div className="w-3/4 mx-auto ">
+        <div className="w-3/4 mx-auto flex gap-6 mt-5">
           <div
-            className="mt-5 cursor-pointer inline-block text-indigo-600 hover:text-indigo-400"
+            className="cursor-pointer inline-block text-indigo-600 hover:text-indigo-400"
             onClick={handleCopy}
           >
             Copy poll link{" "}
@@ -91,6 +115,17 @@ function UserPoll() {
               <Icon icon="solar:copy-bold" />
             )}
           </div>
+
+          {pollData.is_open ? (
+            <div
+              className="text-red-600 hover:text-red-400 cursor-pointer"
+              onClick={() => {
+                setDisplayconfirmation(true);
+              }}
+            >
+              Close poll <Icon icon="icomoon-free:cross" />
+            </div>
+          ) : null}
         </div>
       </div>
     </div>

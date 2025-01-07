@@ -5,7 +5,7 @@ interface Props {
 }
 
 function MainArea({ children }: Props) {
-  return <div className="w-3/4 p-5">{children}</div>;
+  return <div className="w-3/4 relative">{children}</div>;
 }
 
 export default MainArea;
