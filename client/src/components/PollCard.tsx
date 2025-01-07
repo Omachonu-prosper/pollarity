@@ -2,6 +2,7 @@ import { Link } from "react-router";
 import { Poll } from "../services/api";
 import { formatDistance } from "date-fns";
 import { Icon } from "@iconify-icon/react";
+import { useEffect, useState } from "react";
 
 interface Props {
   pollData: Poll;
@@ -31,6 +32,36 @@ function PollCard({
           background: `linear-gradient(90deg, rgb(100 116 139) 0%, rgb(100 116 139) ${coverage}%, rgb(203 213 225) ${coverage}%, rgb(203 213 225) 100%)`,
         };
   };
+  const [totalVotes, setTotalVotes] = useState(pollData.total_chosen);
+  const [optionChosen, setOptionChosen] = useState<{ [key: number]: any }>({});
+
+  if (pollData.is_open && withOptions) {
+    const options: { [key: number]: any } = {};
+    pollData.options.forEach((o) => {
+      let key = o.id;
+      options[key] = o.chosen;
+    });
+
+    useEffect(() => {
+      setOptionChosen(options);
+      const evntSrc = new EventSource(
+        `${import.meta.env.VITE_BASE_URL}/poll/${pollData.ref}/live`
+      );
+      console.log("Connected to live poll");
+
+      evntSrc.addEventListener("vote", (e) => {
+        let parsedData = JSON.parse(e.data);
+        let id = parsedData.oid;
+        setTotalVotes((tV) => tV + 1);
+        console.log(totalVotes);
+        setOptionChosen((prevData) => ({
+          ...prevData,
+          [id]: optionChosen[id] + 1,
+        }));
+        console.log(optionChosen[id]);
+      });
+    }, []);
+  }
 
   return (
     <div className={className}>
@@ -59,7 +90,7 @@ function PollCard({
                   className="w-full p-1 text-white text-center"
                   onClick={onOptionClick}
                 >
-                  {option.chosen}
+                  {pollData.is_open ? optionChosen[option.id] : option.chosen}
                   {choice == option.id ? (
                     <Icon icon="mdi:tick-circle" className="text-white pl-2" />
                   ) : null}
@@ -67,7 +98,7 @@ function PollCard({
               </div>
             );
           })}
-          <div className="mt-3">total votes: {pollData.total_chosen}</div>
+          <div className="mt-3">total votes: {totalVotes}</div>
         </div>
       ) : (
         <Link
