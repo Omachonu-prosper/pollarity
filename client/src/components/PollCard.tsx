@@ -52,14 +52,20 @@ function PollCard({
       evntSrc.addEventListener("vote", (e) => {
         let parsedData = JSON.parse(e.data);
         let id = parsedData.oid;
+
         setTotalVotes((tV) => tV + 1);
-        console.log(totalVotes);
-        setOptionChosen((prevData) => ({
-          ...prevData,
-          [id]: optionChosen[id] + 1,
-        }));
-        console.log(optionChosen[id]);
+        setOptionChosen((prevData) => {
+          let updatedCount = (prevData[id] || 0) + 1;
+          return {
+            ...prevData,
+            [id]: updatedCount,
+          };
+        });
       });
+
+      return () => {
+        evntSrc.close();
+      };
     }, []);
   }
 
