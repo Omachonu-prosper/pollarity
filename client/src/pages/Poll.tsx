@@ -31,7 +31,8 @@ function PollPage() {
   });
 
   useEffect(() => {
-    document.title = "My Polls - Pollarity";
+    document.title = `Poll [${pollRef}] - Pollarity`;
+
     async function poll() {
       const res = await fetchPoll(pollRef ?? "someref").finally(() => {
         setTimeout(() => {
@@ -43,7 +44,6 @@ function PollPage() {
         setRequestSuccessful(true);
       } else setPollData(defaultPollWithOptions);
     }
-
     poll();
   }, []);
 

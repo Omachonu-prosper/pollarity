@@ -21,21 +21,37 @@ function UserPoll() {
   const { pollRef } = useParams();
   const [loadingState, setLoadingState] = useState(true);
   const [pollData, setPollData] = useState<Poll>(defaultPollWithOptions);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    document.title = "My Polls - Pollarity";
+    document.title = `Poll [${pollRef}] - Pollarity`;
+
     async function poll() {
       const res = await fetchPoll(pollRef ?? "someref").finally(() => {
         setTimeout(() => {
           setLoadingState(false);
         }, 100);
       });
-      if (res.success) setPollData(res.data ?? defaultPollWithOptions);
-      else setPollData(defaultPollWithOptions);
+      if (res.success) {
+        setPollData(res.data ?? defaultPollWithOptions);
+      } else setPollData(defaultPollWithOptions);
     }
-
     poll();
   }, []);
+
+  async function handleCopy() {
+    try {
+      let textToCopy = `${window.location.protocol}//${window.location.host}/poll/${pollRef}`;
+      await navigator.clipboard.writeText(textToCopy);
+    } catch {
+      return;
+    }
+
+    setCopied(true);
+    setTimeout(() => {
+      setCopied(false);
+    }, 2000);
+  }
 
   if (loadingState)
     return (
@@ -63,6 +79,19 @@ function UserPoll() {
           pollData={pollData}
           className="bg-slate-100 w-3/4 mx-auto rounded-md p-4 mt-5"
         />
+        <div className="w-3/4 mx-auto ">
+          <div
+            className="mt-5 cursor-pointer inline-block text-indigo-600 hover:text-indigo-400"
+            onClick={handleCopy}
+          >
+            Copy poll link{" "}
+            {copied ? (
+              <Icon icon="mdi:clipboard-tick-outline" />
+            ) : (
+              <Icon icon="solar:copy-bold" />
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
