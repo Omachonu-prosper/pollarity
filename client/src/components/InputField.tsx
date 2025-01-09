@@ -5,6 +5,7 @@ interface Props {
   id: string;
   placeholder: string;
   classNames?: string;
+  value?: string;
   required?: boolean;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
@@ -17,6 +18,7 @@ function InputField({
   placeholder,
   classNames,
   required,
+  value,
   onChange,
 }: Props) {
   return (
@@ -35,6 +37,7 @@ function InputField({
             placeholder={placeholder}
             onChange={onChange}
             required={required}
+            value={value}
           />
         </div>
       </div>

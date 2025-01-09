@@ -4,7 +4,9 @@ import InputField from "../components/InputField";
 
 function NewPoll() {
   const [optionFields, setOptionFields] = useState<string[]>(["", ""]);
+  const [titleField, setTitleField] = useState("");
   const [canAddField, setCanAddField] = useState(true);
+  const [canDeleteField, setCanDeleteField] = useState(false);
 
   useEffect(() => {
     document.title = "New Poll - Pollarity";
@@ -13,9 +15,33 @@ function NewPoll() {
   function handleAddOption() {
     if (optionFields.length < 10) {
       setOptionFields([...optionFields, ""]);
+      setCanDeleteField(true);
       if (optionFields.length == 9) setCanAddField(false);
     }
   }
+
+  function handleDeleteOption(index: number) {
+    if (optionFields.length > 2) {
+      setOptionFields(optionFields.filter((_, i) => i !== index));
+      setCanAddField(true);
+      if (optionFields.length == 3) setCanDeleteField(false);
+    }
+  }
+
+  function handleInputChange(index: number, value: string) {
+    const updatedFields = [...optionFields];
+    updatedFields[index] = value;
+    setOptionFields(updatedFields);
+  }
+
+  function handleTitleChange(value: string) {
+    setTitleField(value);
+  }
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log("Submitted Values:", optionFields, titleField);
+  };
 
   return (
     <div className="container w-3/4 mx-auto my-10">
@@ -30,7 +56,9 @@ function NewPoll() {
           id="title"
           placeholder=""
           required={true}
-          // onChange={onChangeListener}
+          onChange={(e) => {
+            handleTitleChange(e.target.value);
+          }}
         />
 
         <div className="mt-5">
@@ -47,10 +75,25 @@ function NewPoll() {
                 required={true}
                 classNames="grow"
                 key={index}
-                // onChange={onChangeListener}
+                value={optionField}
+                onChange={(e) => {
+                  handleInputChange(index, e.target.value);
+                }}
               />
-              <div className="flex items-center pt-2">
-                <Icon icon="tabler:trash" className="text-2xl text-red-400" />
+              <div
+                className="flex items-center pt-2"
+                onClick={() => {
+                  handleDeleteOption(index);
+                }}
+              >
+                <Icon
+                  icon="tabler:trash"
+                  className={`text-2xl ${
+                    canDeleteField
+                      ? "text-red-400 cursor-pointer"
+                      : "text-gray-200 cursor-not-allowed"
+                  }`}
+                />
               </div>
             </div>
           ))}
