@@ -3,13 +3,11 @@ import { Icon } from "@iconify-icon/react";
 import InputField from "../components/InputField";
 
 function NewPoll() {
-  const [optionFields, setOptionFields] = useState<string[]>([]);
+  const [optionFields, setOptionFields] = useState<string[]>(["", ""]);
   const [canAddField, setCanAddField] = useState(true);
 
   useEffect(() => {
     document.title = "New Poll - Pollarity";
-
-    setOptionFields([...optionFields, "", ""]);
   }, []);
 
   function handleAddOption() {
@@ -39,17 +37,22 @@ function NewPoll() {
           <h3 className="text-sm">Options</h3>
 
           {optionFields.map((optionField, index) => (
-            <InputField
-              label=""
-              type="text"
-              name={"option-" + index}
-              id="option"
-              placeholder=""
-              required={true}
-              classNames="mt-3"
-              key={index}
-              // onChange={onChangeListener}
-            />
+            <div key={index} className="flex gap-1 items-center mt-3">
+              <InputField
+                label=""
+                type="text"
+                name={"option-" + index}
+                id="option"
+                placeholder=""
+                required={true}
+                classNames="grow"
+                key={index}
+                // onChange={onChangeListener}
+              />
+              <div className="flex items-center pt-2">
+                <Icon icon="tabler:trash" className="text-2xl text-red-400" />
+              </div>
+            </div>
           ))}
 
           <div
