@@ -3,9 +3,10 @@ import { Icon } from "@iconify-icon/react";
 interface Props {
   display: boolean;
   handleClose: (e: React.MouseEvent) => void;
+  handleConfirm: (e: React.MouseEvent) => void;
 }
 
-function Confirmation({ display, handleClose }: Props) {
+function Confirmation({ display, handleClose, handleConfirm }: Props) {
   return (
     <div
       className={`w-full min-h-screen absolute bg-white/50 backdrop-blur-sm flex justify-center items-center ${
@@ -27,7 +28,10 @@ function Confirmation({ display, handleClose }: Props) {
           >
             Cancel
           </div>
-          <div className="w-1/2 text-center bg-red-600 hover:bg-red-400 text-white rounded-md px-3 py-2 cursor-pointer">
+          <div
+            className="w-1/2 text-center bg-red-600 hover:bg-red-400 text-white rounded-md px-3 py-2 cursor-pointer"
+            onClick={handleConfirm}
+          >
             Confirm
           </div>
         </div>

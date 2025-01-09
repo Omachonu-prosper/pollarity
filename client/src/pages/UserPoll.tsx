@@ -3,9 +3,10 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router";
 import { Icon } from "@iconify-icon/react";
-import { fetchPoll, Poll } from "../services/api";
+import { fetchPoll, closePoll, Poll } from "../services/api";
 import PollCard from "../components/PollCard";
 import Confirmation from "../components/Confirmation";
+import Alert from "../components/Alert";
 
 function UserPoll() {
   const defaultPollWithOptions = {
@@ -24,20 +25,14 @@ function UserPoll() {
   const [pollData, setPollData] = useState<Poll>(defaultPollWithOptions);
   const [copied, setCopied] = useState(false);
   const [displayConfirmation, setDisplayconfirmation] = useState(false);
+  const [alertState, setAlertState] = useState({
+    display: false,
+    color: "",
+    message: "",
+  });
 
   useEffect(() => {
     document.title = `Poll [${pollRef}] - Pollarity`;
-
-    async function poll() {
-      const res = await fetchPoll(pollRef ?? "someref").finally(() => {
-        setTimeout(() => {
-          setLoadingState(false);
-        }, 100);
-      });
-      if (res.success) {
-        setPollData(res.data ?? defaultPollWithOptions);
-      } else setPollData(defaultPollWithOptions);
-    }
     poll();
   }, []);
 
@@ -53,6 +48,46 @@ function UserPoll() {
       window.removeEventListener("keydown", handleKeyDown);
     };
   });
+
+  async function poll() {
+    const res = await fetchPoll(pollRef ?? "someref").finally(() => {
+      setTimeout(() => {
+        setLoadingState(false);
+      }, 100);
+    });
+    if (res.success) {
+      setPollData(res.data ?? defaultPollWithOptions);
+    } else setPollData(defaultPollWithOptions);
+  }
+
+  async function closeCurrentPoll() {
+    const res = await closePoll(pollRef ?? "someref").finally(() => {
+      setTimeout(() => {
+        setLoadingState(false);
+      }, 100);
+    });
+    if (res.success) {
+      showAlert("Poll closed successfully", "bg-green-400");
+    } else {
+      setPollData(defaultPollWithOptions);
+      showAlert("Poll not closed! Try again later", "bg-red-400");
+    }
+  }
+
+  function showAlert(message: string, color: string) {
+    setAlertState({
+      display: true,
+      color: color,
+      message: message,
+    });
+    setTimeout(() => {
+      setAlertState({
+        display: false,
+        color: "",
+        message: "",
+      });
+    }, 5000);
+  }
 
   async function handleCopy() {
     try {
@@ -72,6 +107,17 @@ function UserPoll() {
     setDisplayconfirmation(false);
   }
 
+  function confirmClosePoll() {
+    setDisplayconfirmation(false);
+    setLoadingState(true);
+    closeCurrentPoll();
+    setPollData((prevData) => ({
+      ...prevData,
+      is_open: false,
+    }));
+    console.log(pollData.is_open);
+  }
+
   if (loadingState)
     return (
       <div className="flex items-center justify-center h-screen">
@@ -87,6 +133,13 @@ function UserPoll() {
       <Confirmation
         display={displayConfirmation}
         handleClose={closeConfirmationDialogue}
+        handleConfirm={confirmClosePoll}
+      />
+
+      <Alert
+        display={alertState.display}
+        color={alertState.color}
+        message={alertState.message}
       />
 
       <Link
