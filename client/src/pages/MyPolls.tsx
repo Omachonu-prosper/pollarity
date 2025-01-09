@@ -35,14 +35,14 @@ function MyPolls() {
   if (pollData.length == 0) return <div>No poll data to display</div>;
 
   return (
-    <div className="flex gap-2 mt-5 items-start p-5">
+    <div className=" grid sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-2 mt-5 items-start p-5">
       {pollData.map((poll, index) => {
         return (
           <PollCard
             withOptions={false}
             key={index}
             pollData={poll}
-            className="bg-slate-200 w-2/4 lg:w-1/4 mx-2 rounded-md p-4"
+            className="bg-slate-200 mx-2 rounded-md p-4"
           />
         );
       })}
