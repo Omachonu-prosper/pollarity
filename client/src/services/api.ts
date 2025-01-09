@@ -74,6 +74,32 @@ async function login(email: string, password: string): Promise<{
     }
 }
 
+async function newPoll(title: string, options: string[]): Promise<{
+    success: boolean, ref: object | null
+}> {
+    let req = await api.post('/poll/new',
+    {
+        title, options
+    },
+    {
+        headers: {
+            Authorization: `Bearer ${sessionStorage.getItem('AuthToken')}`
+        }
+    }).then((res) => {
+        return res
+    }).catch((err) => {
+        return err
+    })
+    if (req.status == 201) return {
+        success: true,
+        ref: req.data.data.poll_ref
+    }
+    return {
+        success: false,
+        ref: null
+    }
+}
+
 async function fetchUserPolls(): Promise<{
     success: boolean, data: Poll[]
 }> {
@@ -150,5 +176,5 @@ async function vote(pollRef: string, optionId: number): Promise<{
 }
 
 export {
-    signup, login, fetchUserPolls, fetchPoll, vote, closePoll
+    signup, login, fetchUserPolls, fetchPoll, vote, closePoll, newPoll
 }

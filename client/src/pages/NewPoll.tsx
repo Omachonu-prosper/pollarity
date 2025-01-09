@@ -1,16 +1,40 @@
 import { useEffect, useState } from "react";
 import { Icon } from "@iconify-icon/react";
+import { newPoll } from "../services/api";
+import { useNavigate } from "react-router";
 import InputField from "../components/InputField";
+import Alert from "../components/Alert";
 
 function NewPoll() {
+  const navigate = useNavigate();
   const [optionFields, setOptionFields] = useState<string[]>(["", ""]);
   const [titleField, setTitleField] = useState("");
   const [canAddField, setCanAddField] = useState(true);
   const [canDeleteField, setCanDeleteField] = useState(false);
+  const [alertState, setAlertState] = useState({
+    display: false,
+    color: "",
+    message: "",
+  });
 
   useEffect(() => {
     document.title = "New Poll - Pollarity";
   }, []);
+
+  function showAlert(message: string, color: string) {
+    setAlertState({
+      display: true,
+      color: color,
+      message: message,
+    });
+    setTimeout(() => {
+      setAlertState({
+        display: false,
+        color: "",
+        message: "",
+      });
+    }, 5000);
+  }
 
   function handleAddOption() {
     if (optionFields.length < 10) {
@@ -38,16 +62,30 @@ function NewPoll() {
     setTitleField(value);
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    console.log("Submitted Values:", optionFields, titleField);
-  };
+    let apiReq = await newPoll(titleField, optionFields);
+    if (apiReq.success) {
+      navigate(`/dashboard/poll/${apiReq.ref}`);
+    } else {
+      showAlert(
+        "Could Not create poll! Refresh the page and try again",
+        "bg-red-400"
+      );
+    }
+  }
 
   return (
     <div className="container w-3/4 mx-auto my-10">
+      <Alert
+        display={alertState.display}
+        color={alertState.color}
+        message={alertState.message}
+      />
+
       <h2 className="mb-5 text-lg">Create a new poll</h2>
 
-      <form>
+      <form onSubmit={handleSubmit}>
         <h3 className="text-sm">Poll title</h3>
         <InputField
           label=""
