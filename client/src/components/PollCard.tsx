@@ -33,11 +33,13 @@ function PollCard({
     };
   };
 
-  function generateGradientCoverage(useOptionChosen: boolean) {
+  function generateGradientCoverage() {
     const optionGradients: { [key: number]: any } = {};
     pollData.options.forEach((o) => {
-      let chosen = useOptionChosen ? o.chosen : optionChosen[o.id] || 0;
-      let coverage = totalVotes > 0 ? (chosen / totalVotes) * 100 : 0;
+      let coverage =
+        pollData.total_chosen > 0
+          ? (o.chosen / pollData.total_chosen) * 100
+          : 0;
       optionGradients[o.id] = coverage;
     });
     setGradientCoverage(optionGradients);
@@ -45,7 +47,7 @@ function PollCard({
 
   if (withOptions) {
     useEffect(() => {
-      generateGradientCoverage(true);
+      generateGradientCoverage();
     }, []);
   }
 
@@ -61,7 +63,6 @@ function PollCard({
       const evntSrc = new EventSource(
         `${import.meta.env.VITE_BASE_URL}/poll/${pollData.ref}/live`
       );
-      console.log("Connected to live poll");
 
       evntSrc.addEventListener("vote", (e) => {
         let parsedData = JSON.parse(e.data);
@@ -75,7 +76,6 @@ function PollCard({
             [id]: updatedCount,
           };
         });
-        console.log(gradientCoverage);
       });
 
       return () => {
@@ -84,7 +84,11 @@ function PollCard({
     }, []);
 
     useEffect(() => {
-      generateGradientCoverage(false);
+      pollData.options.forEach((o) => {
+        o.chosen = optionChosen[o.id];
+      });
+      pollData.total_chosen = totalVotes;
+      generateGradientCoverage();
     }, [optionChosen, totalVotes]);
   }
 
