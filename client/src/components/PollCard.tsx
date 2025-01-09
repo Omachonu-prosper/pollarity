@@ -22,18 +22,32 @@ function PollCard({
   let createdAt = new Date(pollData.created_at);
   let now = new Date();
   let relativeDate = formatDistance(createdAt, now, { addSuffix: true });
-  const optionsGradient = (choices: number, total: number) => {
-    let coverage = (choices / total) * 100;
-    return total == 0
-      ? {
-          background: "rgb(203 213 225)",
-        }
-      : {
-          background: `linear-gradient(90deg, rgb(100 116 139) 0%, rgb(100 116 139) ${coverage}%, rgb(203 213 225) ${coverage}%, rgb(203 213 225) 100%)`,
-        };
-  };
   const [totalVotes, setTotalVotes] = useState(pollData.total_chosen);
   const [optionChosen, setOptionChosen] = useState<{ [key: number]: any }>({});
+  const [gradientCoverage, setGradientCoverage] = useState<{
+    [key: number]: any;
+  }>({});
+  const optionsGradient = (coverage: number) => {
+    return {
+      background: `linear-gradient(90deg, rgb(100 116 139) 0%, rgb(100 116 139) ${coverage}%, rgb(203 213 225) ${coverage}%, rgb(203 213 225) 100%)`,
+    };
+  };
+
+  function generateGradientCoverage(useOptionChosen: boolean) {
+    const optionGradients: { [key: number]: any } = {};
+    pollData.options.forEach((o) => {
+      let chosen = useOptionChosen ? o.chosen : optionChosen[o.id] || 0;
+      let coverage = totalVotes > 0 ? (chosen / totalVotes) * 100 : 0;
+      optionGradients[o.id] = coverage;
+    });
+    setGradientCoverage(optionGradients);
+  }
+
+  if (withOptions) {
+    useEffect(() => {
+      generateGradientCoverage(true);
+    }, []);
+  }
 
   if (pollData.is_open && withOptions) {
     const options: { [key: number]: any } = {};
@@ -61,12 +75,17 @@ function PollCard({
             [id]: updatedCount,
           };
         });
+        console.log(gradientCoverage);
       });
 
       return () => {
         evntSrc.close();
       };
     }, []);
+
+    useEffect(() => {
+      generateGradientCoverage(false);
+    }, [optionChosen, totalVotes]);
   }
 
   return (
@@ -92,7 +111,7 @@ function PollCard({
                 <div className="text-sm">{option.choice}</div>
                 <div
                   id={String(option.id)}
-                  style={optionsGradient(option.chosen, pollData.total_chosen)}
+                  style={optionsGradient(gradientCoverage[option.id])}
                   className="w-full p-1 text-white text-center"
                   onClick={onOptionClick}
                 >

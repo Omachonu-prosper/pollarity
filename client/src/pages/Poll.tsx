@@ -72,7 +72,11 @@ function PollPage() {
         if (res.success) {
           showAlert("Vote recorded", "bg-green-400");
           sessionStorage.setItem(pollData.ref, optionId);
-        } else showAlert("Vote could not be recorded", "bg-red-400");
+        } else
+          showAlert(
+            "Vote could not be recorded! Please refresh the page",
+            "bg-red-400"
+          );
       }
     } else {
       showAlert("Poll has been closed", "bg-red-400");
