@@ -15,9 +15,15 @@ async def signup(
     ) -> SuccessResponse:
     db_user = User.model_validate(user)
     db_user.password = hash_password(db_user.password)
-    session.add(db_user)
-    session.commit()
-    session.refresh(db_user)
+    try:
+        session.add(db_user)
+        session.commit()
+        session.refresh(db_user)
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail='An unexpected exception occured'
+        )
     user_public = UserPublic.model_validate(db_user)
     return SuccessResponse(
         message='User created successfully',

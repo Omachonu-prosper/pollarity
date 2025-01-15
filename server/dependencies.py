@@ -9,8 +9,7 @@ from config import Config
 
 # Database Configurations 
 db_url = Config.DB_URL
-connect_args = {'check_same_thread': False}
-engine = create_engine(db_url, connect_args=connect_args)
+engine = create_engine(db_url)
 
 # Voting Configurations
 poll_connections = dict()
