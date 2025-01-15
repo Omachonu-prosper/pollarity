@@ -115,7 +115,6 @@ function UserPoll() {
       ...prevData,
       is_open: false,
     }));
-    console.log(pollData.is_open);
   }
 
   if (loadingState)
