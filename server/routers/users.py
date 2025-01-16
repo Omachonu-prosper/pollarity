@@ -19,10 +19,11 @@ async def signup(
         session.add(db_user)
         session.commit()
         session.refresh(db_user)
-    except Exception:
+    except Exception as e:
+        print(e)
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail='An unexpected exception occured'
+            status_code=status.HTTP_409_CONFLICT,
+            detail='Email taken'
         )
     user_public = UserPublic.model_validate(db_user)
     return SuccessResponse(
