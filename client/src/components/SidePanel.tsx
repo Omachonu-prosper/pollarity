@@ -35,11 +35,20 @@ function SidePanel({
       </h3>
 
       <ul className="mt-5 flex flex-col gap-5">
-        <SidePanelLink icon="ri:chat-poll-line" link="/dashboard/polls">
+        <SidePanelLink
+          onClick={() => {
+            setSidePanelOpen(false);
+          }}
+          icon="ri:chat-poll-line"
+          link="/dashboard/polls"
+        >
           My polls
         </SidePanelLink>
 
         <SidePanelLink
+          onClick={() => {
+            setSidePanelOpen(false);
+          }}
           icon="mdi:poll-box-multiple-outline"
           link="/dashboard/poll/new"
         >
@@ -52,6 +61,7 @@ function SidePanel({
           onClick={() => {
             setIsAuthenticated(false);
             sessionStorage.removeItem("AuthToken");
+            setSidePanelOpen(false);
           }}
         >
           Logout
