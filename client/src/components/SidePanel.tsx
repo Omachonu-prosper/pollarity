@@ -7,7 +7,7 @@ interface Props {
 
 function SidePanel({ setIsAuthenticated }: Props) {
   return (
-    <div className="bg-gray-100 flex-initial w-1/4 h-screen sticky top-0 p-5">
+    <div className="bg-gray-100 flex-initial w-60 h-screen sticky top-0 p-5">
       <h3 className="text-indigo-800 text-2xl ">
         Pollarity
         <Icon
