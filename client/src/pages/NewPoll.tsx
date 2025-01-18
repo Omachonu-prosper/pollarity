@@ -16,6 +16,7 @@ function NewPoll() {
     color: "",
     message: "",
   });
+  const [reqPending, setReqPending] = useState(false);
 
   useEffect(() => {
     document.title = "New Poll - Pollarity";
@@ -64,6 +65,7 @@ function NewPoll() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setReqPending(true);
     let apiReq = await newPoll(titleField, optionFields);
     if (apiReq.success) {
       navigate(`/dashboard/poll/${apiReq.ref}`);
@@ -73,6 +75,9 @@ function NewPoll() {
         "bg-red-400"
       );
     }
+    setTimeout(() => {
+      setReqPending(false);
+    }, 200);
   }
 
   return (
@@ -148,8 +153,13 @@ function NewPoll() {
           </div>
         </div>
 
-        <button className="bg-indigo-800 hover:bg-indigo-700 text-white py-2 px-3 mt-5 rounded-md inline-block">
-          Submit
+        <button className="bg-indigo-800 hover:bg-indigo-700 text-white py-2 px-3 mt-5 rounded-md w-full flex justify-center items-center gap-3">
+          <div>Submit</div>
+          <div
+            className={`w-5 h-5 border-dotted rounded-full border-2 border-white ${
+              reqPending ? "animate-spin block" : "hidden animate-none"
+            }`}
+          ></div>
         </button>
       </form>
     </div>

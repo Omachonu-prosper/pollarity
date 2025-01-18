@@ -25,6 +25,7 @@ function Signup({ isAuthenticated, setIsAuthenticated }: Props) {
     email: "",
     password: "",
   });
+  const [reqPending, setReqPending] = useState(false);
 
   function onChangeListener(e: React.ChangeEvent<HTMLInputElement>) {
     const { name, value } = e.target;
@@ -50,6 +51,7 @@ function Signup({ isAuthenticated, setIsAuthenticated }: Props) {
   }
 
   async function onSubmitHandler() {
+    setReqPending(true);
     let apiReq = await signup(form.username, form.email, form.password);
     if (apiReq.success) {
       setIsAuthenticated(true);
@@ -58,6 +60,9 @@ function Signup({ isAuthenticated, setIsAuthenticated }: Props) {
     } else {
       showAlert(apiReq.message, "bg-red-400");
     }
+    setTimeout(() => {
+      setReqPending(false);
+    }, 200);
   }
 
   if (isAuthenticated) return <Navigate to="/dashboard" />;
@@ -108,8 +113,13 @@ function Signup({ isAuthenticated, setIsAuthenticated }: Props) {
           onChange={onChangeListener}
         />
 
-        <button className="bg-indigo-800 hover:bg-indigo-700 text-white py-2 px-3 mt-5 rounded-md w-full">
-          Signup
+        <button className="bg-indigo-800 hover:bg-indigo-700 text-white py-2 px-3 mt-5 rounded-md w-full flex justify-center items-center gap-3">
+          <div>Signup</div>
+          <div
+            className={`w-5 h-5 border-dotted rounded-full border-2 border-white ${
+              reqPending ? "animate-spin block" : "hidden animate-none"
+            }`}
+          ></div>
         </button>
       </form>
 
