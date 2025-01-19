@@ -1,24 +1,13 @@
 import asyncio, json
-from fastapi import APIRouter, Depends, status, HTTPException
+from fastapi import APIRouter, Depends, status, HTTPException, BackgroundTasks
 from fastapi.responses import StreamingResponse
 from sqlmodel import Session, select
 from dependencies import *
 from models import PollCreate, Poll, PollPublic, Option, OptionPublic, User, Vote
-from concurrent.futures import ThreadPoolExecutor
-
 
 router = APIRouter(
     tags=['polls']
 )
-
-def print_poll_connections():
-   while True:
-        import time
-        print(poll_connections)
-        time.sleep(10)
-
-executor = ThreadPoolExecutor()
-executor.submit(print_poll_connections)
 
 
 @router.post('/poll/new', status_code=status.HTTP_201_CREATED)
@@ -75,6 +64,7 @@ async def get_poll(
 @router.get('/poll/{ref}/live', status_code=status.HTTP_200_OK)
 async def get_live_poll(
         ref: str,
+        background_task: BackgroundTasks,
         session: Session = Depends(get_session)
     ) -> StreamingResponse:
     query = select(Poll).where(Poll.ref == ref)
@@ -89,6 +79,10 @@ async def get_live_poll(
             status_code=status.HTTP_403_FORBIDDEN,
             detail='poll has been closed'
         )
+    
+    async def clean_up_on_disconnect(session_id: str):
+        poll_connections.get(ref, {}).pop(session_id, None)
+    
     async def stream_live_poll():
         session_id = generate_session_id()
         poll_conns = poll_connections.get(ref, None)
@@ -98,6 +92,8 @@ async def get_live_poll(
             poll_connections[ref] = {
                 session_id: asyncio.Queue()
             }
+        
+        background_task.add_task(clean_up_on_disconnect, session_id)
         while True:
             try:
                 vote = await poll_connections[ref][session_id].get()
