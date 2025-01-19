@@ -11,14 +11,14 @@ router = APIRouter(
     tags=['polls']
 )
 
-# def print_poll_connections():
-#    while True:
-#         import time
-#         print(poll_connections)
-#         time.sleep(10)
+def print_poll_connections():
+   while True:
+        import time
+        print(poll_connections)
+        time.sleep(10)
 
-# executor = ThreadPoolExecutor()
-# executor.submit(print_poll_connections)
+executor = ThreadPoolExecutor()
+executor.submit(print_poll_connections)
 
 
 @router.post('/poll/new', status_code=status.HTTP_201_CREATED)
@@ -104,7 +104,7 @@ async def get_live_poll(
                 event = vote['event']
                 data = vote['data']
                 yield f"event: {event}\ndata: {data}\n\n"
-            except Exception as e:
+            except Exception:
                 return
     return StreamingResponse(stream_live_poll(), media_type='text/event-stream')
 
@@ -163,5 +163,13 @@ async def close_poll(
     poll.is_open = False
     session.add(poll)
     session.commit()
+    conns = poll_connections.get(ref, {})
+    for value in conns.values():
+        event = {
+            'event': 'close',
+            'data': json.dumps({})
+        }
+        await value.put(event)
+    del poll_connections[ref]
     return SuccessResponse(message='closed poll successfully')
 
