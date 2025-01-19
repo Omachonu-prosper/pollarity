@@ -29,6 +29,7 @@ function PollPage() {
     color: "",
     message: "",
   });
+  const [reqPending, setReqPending] = useState(false);
 
   useEffect(() => {
     document.title = `Poll [${pollRef}] - Pollarity`;
@@ -68,15 +69,20 @@ function PollPage() {
       if (sessionStorage.getItem(pollData.ref)) {
         showAlert("Vote alreay recorded", "bg-red-400");
       } else {
+        setReqPending(true);
         const res = await vote(pollData.ref, Number(optionId));
         if (res.success) {
           showAlert("Vote recorded", "bg-green-400");
           sessionStorage.setItem(pollData.ref, optionId);
-        } else
+        } else {
           showAlert(
             "Vote could not be recorded! Please refresh the page",
             "bg-red-400"
           );
+        }
+        setTimeout(() => {
+          setReqPending(false);
+        });
       }
     } else {
       showAlert("Poll has been closed", "bg-red-400");
@@ -102,6 +108,18 @@ function PollPage() {
         color={alertState.color}
         message={alertState.message}
       />
+
+      <div
+        className={`bg-gray-300/50 fixed flex items-center justify-center w-full h-svh top-0 ${
+          reqPending ? "block" : "hidden"
+        }`}
+      >
+        <div
+          className={`w-12 h-12 border-2 rounded-full border-dashed border-blue-400 ${
+            reqPending ? "animate-spin block" : "hidden animate-none"
+          }`}
+        ></div>
+      </div>
 
       <PollCard
         withOptions={true}
