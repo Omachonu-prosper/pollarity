@@ -32,6 +32,7 @@ function PollCard({
       background: `linear-gradient(90deg, rgb(100 116 139) 0%, rgb(100 116 139) ${coverage}%, rgb(203 213 225) ${coverage}%, rgb(203 213 225) 100%)`,
     };
   };
+  const [isPollOpen, setIsPollOpen] = useState(pollData.is_open);
 
   function generateGradientCoverage() {
     const optionGradients: { [key: number]: any } = {};
@@ -45,26 +46,25 @@ function PollCard({
     setGradientCoverage(optionGradients);
   }
 
-  if (withOptions) {
-    useEffect(() => {
+  useEffect(() => {
+    if (withOptions) {
       generateGradientCoverage();
-    }, []);
-  }
+    }
+  }, [withOptions]);
 
-  if (pollData.is_open && withOptions) {
-    const options: { [key: number]: any } = {};
-    pollData.options.forEach((o) => {
-      let key = o.id;
-      options[key] = o.chosen;
-    });
-
-    useEffect(() => {
+  useEffect(() => {
+    if (isPollOpen && withOptions) {
+      const options: { [key: number]: any } = {};
+      pollData.options.forEach((o) => {
+        let key = o.id;
+        options[key] = o.chosen;
+      });
       setOptionChosen(options);
-      const evntSrc = new EventSource(
+      const eventSrc = new EventSource(
         `${import.meta.env.VITE_BASE_URL}/poll/${pollData.ref}/live`
       );
 
-      evntSrc.addEventListener("vote", (e) => {
+      eventSrc.addEventListener("vote", (e) => {
         let parsedData = JSON.parse(e.data);
         let id = parsedData.oid;
 
@@ -78,23 +78,30 @@ function PollCard({
         });
       });
 
-      return () => {
-        evntSrc.close();
-      };
-    }, []);
+      eventSrc.addEventListener("close", (e) => {
+        pollData.is_open = false;
+        setIsPollOpen(false);
+      });
 
-    useEffect(() => {
+      return () => {
+        eventSrc.close();
+      };
+    }
+  }, [isPollOpen, withOptions]);
+
+  useEffect(() => {
+    if (isPollOpen && withOptions) {
       pollData.options.forEach((o) => {
         o.chosen = optionChosen[o.id];
       });
       pollData.total_chosen = totalVotes;
       generateGradientCoverage();
-    }, [optionChosen, totalVotes]);
-  }
+    }
+  }, [optionChosen, totalVotes, isPollOpen, withOptions]);
 
   return (
     <div className={className}>
-      {pollData.is_open ? (
+      {isPollOpen ? (
         <div className="bg-green-600 inline py-1 px-2 rounded-2xl text-white">
           active
         </div>
@@ -119,7 +126,8 @@ function PollCard({
                   className="w-full p-1 text-white text-center"
                   onClick={onOptionClick}
                 >
-                  {pollData.is_open ? optionChosen[option.id] : option.chosen}
+                  {/* If the poll is open we use the optionChosen[id] so we can update it's value when a vote event is emited*/}
+                  {isPollOpen ? optionChosen[option.id] : option.chosen}
                   {choice == option.id ? (
                     <Icon icon="mdi:tick-circle" className="text-white pl-2" />
                   ) : null}
