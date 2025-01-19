@@ -20,10 +20,19 @@ async def signup(
         session.commit()
         session.refresh(db_user)
     except Exception as e:
-        print(e)
+        if 'user.username' in e:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail='Username taken'
+            )
+        elif 'user.email' in e:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail='Email taken'
+            )
         raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail='Email taken'
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail='An error occured when attemptig to sign you up!'
         )
     user_public = UserPublic.model_validate(db_user)
     return SuccessResponse(
