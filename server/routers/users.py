@@ -20,12 +20,12 @@ async def signup(
         session.commit()
         session.refresh(db_user)
     except Exception as e:
-        if 'user.username' in e:
+        if 'user.username' in str(e):
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail='Username taken'
             )
-        elif 'user.email' in e:
+        elif 'user.email' in str(e):
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail='Email taken'
