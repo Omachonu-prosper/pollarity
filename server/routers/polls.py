@@ -170,6 +170,6 @@ async def close_poll(
             'data': json.dumps({})
         }
         await value.put(event)
-    del poll_connections[ref]
+    poll_connections.pop(ref, None)
     return SuccessResponse(message='closed poll successfully')
 
