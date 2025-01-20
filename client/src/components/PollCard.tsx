@@ -23,7 +23,7 @@ function PollCard({
   let now = new Date();
   let relativeDate = formatDistance(createdAt, now, { addSuffix: true });
   const [totalVotes, setTotalVotes] = useState(pollData.total_chosen);
-  const [optionChosen, setOptionChosen] = useState<{ [key: number]: any }>({});
+  const [optionState, setoptionState] = useState<{ [key: number]: any }>({});
   const [gradientCoverage, setGradientCoverage] = useState<{
     [key: number]: any;
   }>({});
@@ -59,7 +59,8 @@ function PollCard({
         let key = o.id;
         options[key] = o.chosen;
       });
-      setOptionChosen(options);
+      setoptionState(options);
+
       const eventSrc = new EventSource(
         `${import.meta.env.VITE_BASE_URL}/poll/${pollData.ref}/live`
       );
@@ -69,7 +70,7 @@ function PollCard({
         let id = parsedData.oid;
 
         setTotalVotes((tV) => tV + 1);
-        setOptionChosen((prevData) => {
+        setoptionState((prevData) => {
           let updatedCount = (prevData[id] || 0) + 1;
           return {
             ...prevData,
@@ -78,7 +79,7 @@ function PollCard({
         });
       });
 
-      eventSrc.addEventListener("close", (e) => {
+      eventSrc.addEventListener("close", () => {
         pollData.is_open = false;
         setIsPollOpen(false);
       });
@@ -87,17 +88,17 @@ function PollCard({
         eventSrc.close();
       };
     }
-  }, [isPollOpen, withOptions]);
+  }, []);
 
   useEffect(() => {
     if (isPollOpen && withOptions) {
       pollData.options.forEach((o) => {
-        o.chosen = optionChosen[o.id];
+        o.chosen = optionState[o.id] ? optionState[o.id] : o.chosen;
       });
       pollData.total_chosen = totalVotes;
       generateGradientCoverage();
     }
-  }, [optionChosen, totalVotes, isPollOpen, withOptions]);
+  }, [optionState, totalVotes]);
 
   return (
     <div className={className}>
@@ -126,8 +127,8 @@ function PollCard({
                   className="w-full p-1 text-white text-center"
                   onClick={onOptionClick}
                 >
-                  {/* If the poll is open we use the optionChosen[id] so we can update it's value when a vote event is emited*/}
-                  {isPollOpen ? optionChosen[option.id] : option.chosen}
+                  {/* If the poll is open we use the optionState[id] so we can update it's value when a vote event is emited*/}
+                  {isPollOpen ? optionState[option.id] : option.chosen}
                   {choice == option.id ? (
                     <Icon icon="mdi:tick-circle" className="text-white pl-2" />
                   ) : null}

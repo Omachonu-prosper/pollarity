@@ -65,7 +65,6 @@ function PollPage() {
 
   async function handleOptionClick(e: React.MouseEvent) {
     let optionId = e.currentTarget.id;
-    console.log(pollData.is_open);
     if (pollData.is_open) {
       if (sessionStorage.getItem(pollData.ref)) {
         showAlert("Vote alreay recorded", "bg-red-400");
