@@ -14,7 +14,7 @@ function SidePanel({
 }: Props) {
   return (
     <div
-      className={`bg-gray-100 flex-initial w-60 h-screen md:sticky top-0 p-5 sm:block z-10 ${
+      className={`bg-gray-100 flex-initial w-60 h-screen sm:sticky top-0 p-5 sm:block z-10 ${
         sidePanelOpen ? "fixed block" : "hidden"
       }`}
     >
