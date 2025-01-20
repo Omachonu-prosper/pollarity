@@ -55,7 +55,7 @@ def generate_poll_ref() -> str:
 
 
 def timestamp() -> str:
-    return datetime.now()
+    return datetime.now(timezone.utc)
 
 
 def generate_session_id() -> str:
